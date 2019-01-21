@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- 对包中的所有类进行扫描，以完成Bean创建和自动依赖注入的功能 ,多个包名用逗号分隔 -->
+	<context:component-scan
+		base-package="cn.zuowenjun.java.mvc"></context:component-scan>
+	
+	<mvc:annotation-driven>
+<!-- 		<mvc:argument-resolvers></mvc:argument-resolvers> -->
+<!-- 		<mvc:async-support></mvc:async-support> -->
+<!-- 		<mvc:message-converters></mvc:message-converters> -->
+<!-- 		<mvc:path-matching/> -->
+<!-- 		<mvc:return-value-handlers></mvc:return-value-handlers> -->
+	</mvc:annotation-driven>
+	
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<!-- 配置静态资源，如html，图片,js,css等,多个资源位置可用逗号分隔 -->
+	 <mvc:resources mapping="/pages/**" location="/WEB-INF/pages/" />
+	
+	<!-- 可配置读取外部配置文件，如果有配置jdbc.properties，则下面的dataSource的相关property可以使用${xxx}占位符，这里不演示 -->
+	<!--<context:property-placeholder location="classpath:jdbc.properties" /> -->
+	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"  value="com.microsoft.sqlserver.jdbc.SQLServerDriver"></property>
+		<property name="url" value="jdbc:sqlserver://serverIP:port;DatabaseName=dbName"></property>
+		<property name="username" value="dbuser"></property>
+		<property name="password" value="dbpwd"></property>
+	</bean>
+	
+	<!-- 配置拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/><!-- 拦截所有请求, /表示只拦截非JSP的请求，/*只拦截一级目录,/**拦截所有目录 -->
+			<bean class="cn.zuowenjun.java.mvc.service.impl.LoginValidationInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
+	<!-- 配置事务管理器  -->
+    <bean id="txManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+<!--     事务扫描开始(开启@Tranctional) 此示例暂不启用-->
+<!--     <tx:annotation-driven transaction-manager="txManager" /> -->
+	
+</beans>
